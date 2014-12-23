@@ -12,10 +12,10 @@ public class ACO {
 	public static HashMap<AntNode, List<AntNode>> roadMap = new HashMap<AntNode, List<AntNode>>();// 路网邻接表
 	public static double ALPHA = 1.0;// 启发因子，信息素的重要程度
 	public static double BETA = 2.0; // 期望因子，城市间距离的重要程度
-	public static double ROU = 5.0; // 信息素残留参数
+	public static double ROU = 0.5; // 信息素残留参数
 	public static double P = 0.1; // // 伪概率事件
 	public static int N_ANT_COUNT = 5;// 蚂蚁数量
-	public static int N_IT_COUNT = 50;// 迭代次数
+	public static int N_IT_COUNT = 500;// 迭代次数
 	public static double DBQ = 100.0;// 总的信息量
 
 	// 构建路网

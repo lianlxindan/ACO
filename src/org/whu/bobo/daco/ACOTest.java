@@ -52,7 +52,15 @@ public class ACOTest {
 				double curTrial = tempTrial.get(key);
 				key.setPheromone(preTrial + curTrial);
 			} else {
-				key.setPheromone(key.getPheromone() * ACO.ROU);
+				double curTrial = key.getPheromone() * ACO.ROU;
+				key.setPheromone(curTrial);
+			}
+			if (key.getPheromone() != 0.0) { // 最小最大信息素系统
+				if (key.getPheromone() < 0.01) {
+					key.setPheromone(0.01);
+				} else if (key.getPheromone() > 1.0) {
+					key.setPheromone(1.0);
+				}
 			}
 		}
 	}
@@ -82,6 +90,7 @@ public class ACOTest {
 			}
 		}
 	}
+
 	public static void main(String[] args) {
 		ACOTest acoTest = new ACOTest();
 		String startRoad = "-10425130";

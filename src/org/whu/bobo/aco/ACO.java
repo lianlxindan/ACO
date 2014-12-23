@@ -10,7 +10,7 @@ public class ACO {
 
 	public static double P = 0.1;// 伪概率事件
 	public static int N_ANT_COUNT = 5;// 蚂蚁数量
-	public static int N_IT_COUNT = 50;// 迭代次数
+	public static int N_IT_COUNT = 500;// 迭代次数
 	public static int N_CITY_COUNT = ACOUtil.getMobility().getAllEdges().size();// 街道口数量
 	public static double DBQ = 100.0;// 总的信息量
 	public static double[][] g_Trial = new double[N_CITY_COUNT + 1][N_CITY_COUNT + 1];// 街道之间的信息素
