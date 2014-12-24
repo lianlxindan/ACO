@@ -28,7 +28,7 @@ public class ACOUtil {
 		return roadMap;
 	}
 
-	public static ACO getAOInstance() {
+	public static ACO getACOInstance() {
 		if (aco == null) {
 			aco = new ACO();
 		}

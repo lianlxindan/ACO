@@ -33,7 +33,7 @@ public class ShortestPath {
 			List<String> edges = ACOUtil.getMobility().getNextEdges(curEdge);
 			if (edges != null) {
 				for (int j = 0; j < edges.size(); j++) {
-					ACOUtil.getAOInstance().setDistanceTwo(curEdge,
+					ACOUtil.getACOInstance().setDistanceTwo(curEdge,
 							edges.get(j), 0.1);
 				}
 			}
@@ -73,7 +73,6 @@ public class ShortestPath {
 			// 每只蚂蚁搜索一遍
 			for (int j = 0; j < ACO.N_ANT_COUNT; j++) {
 				m_cAntAry[j].search(startRoad, endRoad);
-				// m_cAntAry[j].displayPath();
 			}
 			for (int j = 0; j < ACO.N_ANT_COUNT; j++) {
 				if (m_cAntAry[j].m_dbPathLength < m_cBestAnt.m_dbPathLength) {
@@ -104,7 +103,7 @@ public class ShortestPath {
 		for (int i = 1; i <= n; i++) {
 			p[i] = false;
 			if (i != startRoad) {
-				dist[i] = ACOUtil.getAOInstance().getDistance(startRoad, i);
+				dist[i] = ACOUtil.getACOInstance().getDistance(startRoad, i);
 				pre[i] = startRoad;
 			}
 		}
@@ -126,7 +125,7 @@ public class ShortestPath {
 			p[k] = true;// 将点k加入集合a
 			// 更新s到集合b中的点的路劲长度
 			for (int j = 1; j <= n; j++) {
-				double tkj = ACOUtil.getAOInstance().getDistance(k, j);
+				double tkj = ACOUtil.getACOInstance().getDistance(k, j);
 				if (!p[j] && tkj != Double.MAX_VALUE && dist[j] > dist[k] + tkj)
 					dist[j] = dist[k] + tkj;
 				pre[j] = k;
@@ -141,8 +140,8 @@ public class ShortestPath {
 
 	public static void main(String[] args) {
 		ShortestPath s = new ShortestPath();
-		String startRoad = "-10425130";
-		String endRoad = "-31241816#3";
+		String startRoad = "-10425131";
+		String endRoad = "4006702#2";
 		s.initData(startRoad, endRoad);// 初始化
 		long startTimeOne = System.currentTimeMillis();
 		s.search(); // 开始搜索

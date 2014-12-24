@@ -11,6 +11,7 @@ import org.whu.bobo.data.Mobility;
 
 /**
  * dijkstra 算法
+ * 
  * @author bobo
  *
  */
@@ -27,7 +28,8 @@ public class Dijkstra {
 		openList = new ArrayList<Node>();
 		closeList = new ArrayList<Node>();
 	}
-	//构建路网
+
+	// 构建路网
 	public void setRoadMap() {
 		Mobility m = new Mobility();
 		String[] roadInfo = m.getRoadInfo();
@@ -52,92 +54,93 @@ public class Dijkstra {
 			i++;
 		}
 	}
+
 	// 搜索函数
 	public void search(String startRoad, String endRoad) {
 		Node sNode = getNode(startRoad);
 		Node eNode = getNode(endRoad);
-		closeList.add(sNode); // sNode 加入到closeList 其他加入到openList
-		sNode.setShortestWeight(0.0);
-		addNodeToOpen(sNode);
-		dijkstra(sNode, eNode);
-		displayCost(sNode, eNode);
+		init(sNode); // 初始化
+		dijkstra(sNode, eNode); // 核心算法
+		displayCost(sNode, eNode); // 打印代价
 	}
 
 	private void displayCost(Node sNode, Node eNode) {
 		List<Node> resultList = new ArrayList<Node>();
 		double totalCost = 0.0;
 		Node p = eNode;
-		while (p != null) {
+		while (p != sNode) {
 			resultList.add(p);
 			totalCost += p.getRoadWeight();
 			p = p.getParentNode();
 		}
+		resultList.add(sNode);
 		Collections.reverse(resultList);
+		System.out.print("bestPath: ");
 		for (int i = 0; i < resultList.size(); i++) {
 			if (i != resultList.size() - 1) {
 				System.out.print(resultList.get(i).getRoadName() + "->");
 			} else {
-				System.out.println(resultList.get(i).getRoadName());
+				System.out.println(resultList.get(i).getRoadName() + ".");
 			}
 		}
-		System.out.println("cost: " + totalCost);
+		System.out.println("minCost: " + totalCost);
 	}
 
-	private void addNodeToOpen(Node sNode) {
+	private void init(Node sNode) {
+		closeList.add(sNode); // sNode 加入到closeList 其他加入到openList
+		sNode.setShortestWeight(0.0);
 		List<Node> nearests = roadMap.get(sNode);
 		Set<Node> set = roadMap.keySet();
 		for (Iterator<Node> iter = set.iterator(); iter.hasNext();) {
 			Node key = (Node) iter.next();
-			if (!key.getRoadName().equals(sNode.getRoadName())) {
+			if (key != sNode) {
 				openList.add(key);
 			}
 		}
-		for (int i = 0; i < nearests.size(); i++) {
-			Node temp = nearests.get(i);
-			temp.setShortestWeight(temp.getRoadWeight());
-			temp.setParentNode(sNode);
+		for (Iterator<Node> iter = set.iterator(); iter.hasNext();) {
+			Node key = (Node) iter.next();
+			if (nearests.contains(key)) {
+				key.setShortestWeight(key.getRoadWeight());
+			} else {
+				key.setShortestWeight(Double.MAX_VALUE);
+			}
+			key.setParentNode(sNode);
 		}
 	}
 
 	// 核心函数
 	public void dijkstra(Node sNode, Node eNode) {
-		// System.out.println("---->"+roadMap.get(sNode).size());
-		Node nearest = getShortestPath(sNode);
-		if (nearest == null) {
-			return;
-		}
-		closeList.add(nearest);
-		openList.remove(nearest);
-		List<Node> allowedRoad = roadMap.get(nearest);
-		if (allowedRoad == null || allowedRoad.size() == 0) {
-			return;
-		}
-		for (int i = 0; i < allowedRoad.size(); i++) {
-			Node temp = allowedRoad.get(i);
-			if (openList.contains(temp)) {
+		int n = roadMap.size();
+		for (int i = 0; i < n - 1; i++) {
+			Node nearest = getShortestPath();
+			if (nearest == null) {
+				break;
+			}
+			closeList.add(nearest);
+			openList.remove(nearest);
+			List<Node> connectList = roadMap.get(nearest);
+			for (int k = 0; k < openList.size(); k++) {
+				Node temp = openList.get(k);
 				double shortestPath = nearest.getShortestWeight()
 						+ temp.getRoadWeight();
-				if (shortestPath < temp.getShortestWeight()) {
+				if (shortestPath < temp.getShortestWeight()
+						&& connectList.contains(temp)) {
 					temp.setShortestWeight(shortestPath);
 					temp.setParentNode(nearest);
 				}
 			}
 		}
-		dijkstra(sNode, eNode);
-		dijkstra(nearest, eNode);
 	}
 
-	private Node getShortestPath(Node node) {
+	// 获取最小代价的点
+	private Node getShortestPath() {
 		Node res = null;
-		List<Node> allowedRoad = roadMap.get(node);
 		double minWeight = Double.MAX_VALUE;
-		for (int i = 0; i < allowedRoad.size(); i++) {
-			Node temp = allowedRoad.get(i);
-			if (openList.contains(temp)) {
-				if (temp.getRoadWeight() < minWeight) {
-					res = temp;
-					minWeight = temp.getRoadWeight();
-				}
+		for (int i = 0; i < openList.size(); i++) {
+			Node temp = openList.get(i);
+			if (temp.getShortestWeight() < minWeight) {
+				res = temp;
+				minWeight = temp.getShortestWeight();
 			}
 		}
 		return res;
@@ -161,7 +164,7 @@ public class Dijkstra {
 		Dijkstra dijkstra = new Dijkstra();
 		dijkstra.setRoadMap();
 		long beginTime = System.currentTimeMillis();
-		dijkstra.search("-23350930", "31777493#1");
+		dijkstra.search("-10425131", "4006702#2");
 		long endTime = System.currentTimeMillis();
 		System.out.println("cost time: " + (endTime - beginTime) + "ms");
 	}

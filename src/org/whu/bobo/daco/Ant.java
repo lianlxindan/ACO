@@ -140,7 +140,7 @@ public class Ant {
 			}
 		}
 		double p = ACOUtil.rnd(0.0, 1.0);// 伪概率事件选择道路
-		if (p > ACO.P) {// 下面进行轮盘选择
+		if ((p > ACO.P) && p < (1.0 - ACO.P)) {// 下面进行轮盘选择
 			double dbTemp = 0.0;
 			if (dbTotal > 0.0) {
 				dbTemp = ACOUtil.rnd(0.0, dbTotal);// 取一个随机数
@@ -153,8 +153,13 @@ public class Ant {
 					}
 				}
 			}
-		} else {
+		} else if (p <= ACO.P) {
 			selectedRoad = maxProbRoad;
+		} else {
+			int upIndex = allowedRoad.size() - 1;
+			int rndIndex = ACOUtil.rnd(0, upIndex);
+			AntNode nextRoad = allowedRoad.get(rndIndex);
+			selectedRoad = nextRoad;
 		}
 		return selectedRoad;
 	}
@@ -194,4 +199,5 @@ public class Ant {
 		}
 		return result;
 	}
+
 }

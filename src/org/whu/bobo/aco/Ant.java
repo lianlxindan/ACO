@@ -90,7 +90,7 @@ public class Ant {
 			int nextRoadNum = allowedRoad.get(i);
 			if (!movedPath.contains(nextRoadNum)) {// 下个路口不在已经走过的路径中
 				double a = ACO.g_Trial[m_nCurRoadNumber][nextRoadNum];
-				double b = ACOUtil.getAOInstance().getDistance(
+				double b = ACOUtil.getACOInstance().getDistance(
 						m_nCurRoadNumber, nextRoadNum);
 				double x = Math.pow(a, ACO.ALPHA);
 				double y = Math.pow(1.0 / b, ACO.BETA);
@@ -197,7 +197,7 @@ public class Ant {
 		for (int i = 1; i < movedPath.size(); i++) {
 			int m = movedPath.get(i);
 			int n = movedPath.get(i - 1);
-			m_dbPathLength += ACOUtil.getAOInstance().getDistance(n, m);
+			m_dbPathLength += ACOUtil.getACOInstance().getDistance(n, m);
 		}
 	}
 
@@ -210,10 +210,5 @@ public class Ant {
 		this.endRoadNumber = endRoadNumber;
 		m_nCurRoadNumber = startRoadNumber;
 		m_dbPathLength = 0.0;
-	}
-
-	public static void main(String[] args) {
-		Ant a = new Ant();
-		System.out.println(a.getmovedPathName(5));
 	}
 }
