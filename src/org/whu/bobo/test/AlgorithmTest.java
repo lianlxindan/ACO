@@ -1,17 +1,11 @@
 package org.whu.bobo.test;
 
-import org.whu.bobo.daco.ACOTest;
-
 public class AlgorithmTest {
 	public static void main(String[] args) {
-		String startRoad = "-10425130";
-		String endRoad = "4006702#2";
-		ACOTest acoTest = new ACOTest();
-		acoTest.initData(startRoad, endRoad);
-		long startTimeOne = System.currentTimeMillis();
-		acoTest.search(startRoad, endRoad);
-		long endTimeOne = System.currentTimeMillis();
-		System.out.println("costTime: " + (endTimeOne - startTimeOne) + " ms");
-		acoTest.getBestAnt().displayPath();
+		String str1 = "-10425131->4006688#4->29900561#0->29900561#1->32270595->33174302#0->33174302#1->4686970#0->4686970#1->122161381->30350448->8364476->30350450#0->30350450#1->30350450#2->4006702#0->4006702#1->4006702#2.";
+		String str2 = "-10425131->4006688#4->29900561#0->29900561#1->32270595->33174302#0->33174302#1->4686970#0->4686970#1->122161381->30350448->8364476->30350450#0->30350450#1->30350450#2->4006702#0->4006702#1->4006702#2.";
+		String str3 = "-10425131->4006688#4->29900561#0->29900561#1->32270595->33174302#0->33174302#1->4686970#0->4686970#1->122161381->30350448->8364476->30350450#0->30350450#1->30350450#2->4006702#0->4006702#1->4006702#2.";
+		System.out.println(str1.equals(str2));
+		System.out.println(str1.equals(str3));
 	}
 }

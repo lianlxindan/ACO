@@ -2,13 +2,35 @@ package org.whu.bobo.daco;
 
 public class AntNode {
 	private String roadName; // 道路名称
+
+	private double xPos; // 道路横坐标
+	private double yPos; // 道路纵坐标
 	private double roadWeight;// 道路权值
 	private double pheromone; // 道路信息素
 
-	public AntNode(String roadName, double roadWeight, double pheromone) {
+	public AntNode(String roadName, double roadWeight, double xPos,
+			double yPos, double pheromone) {
 		this.roadName = roadName;
 		this.roadWeight = roadWeight;
+		this.xPos = xPos;
+		this.yPos = yPos;
 		this.pheromone = pheromone;
+	}
+
+	public double getxPos() {
+		return xPos;
+	}
+
+	public void setxPos(double xPos) {
+		this.xPos = xPos;
+	}
+
+	public double getyPos() {
+		return yPos;
+	}
+
+	public void setyPos(double yPos) {
+		this.yPos = yPos;
 	}
 
 	public String getRoadName() {

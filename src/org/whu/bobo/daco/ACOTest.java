@@ -102,10 +102,10 @@ public class ACOTest {
 				key.setPheromone(curTrial);
 			}
 			if (key.getPheromone() != 0.0) { // 最小最大信息素系统
-				if (key.getPheromone() < 0.01) {
-					key.setPheromone(0.01);
-				} else if (key.getPheromone() > 10.0) {
-					key.setPheromone(10.0);
+				if (key.getPheromone() < 0.1) {
+					key.setPheromone(0.1);
+				} else if (key.getPheromone() > 1.0) {
+					key.setPheromone(1.0);
 				}
 			}
 		}
@@ -117,10 +117,10 @@ public class ACOTest {
 		for (Iterator<AntNode> iter = set.iterator(); iter.hasNext();) {
 			AntNode key = (AntNode) iter.next();
 			if (key.getPheromone() != 0.0) {
-				if (key.getPheromone() < 0.01) {
-					key.setPheromone(0.01);
-				} else if (key.getPheromone() > 10.0) {
-					key.setPheromone(10.0);
+				if (key.getPheromone() < 0.1) {
+					key.setPheromone(0.1);
+				} else if (key.getPheromone() > 1.0) {
+					key.setPheromone(1.0);
 				}
 			}
 		}
@@ -142,11 +142,12 @@ public class ACOTest {
 					badestAnt = ordAnts[j].clone(); // 克隆一次迭代中最差蚂蚁
 				}
 			}
-			updateTrial(); // 更新信息素
-			int count = (int) (ACO.N_IT_COUNT * ACO.P * 2);
-			if (i >= count && i <= count) {
-				updateBestTrial();// 更新信息素
-				updateBadestTrial();
+			int count = (int) (ACO.N_IT_COUNT * ACO.P * 5);
+			if (i < count) {
+				updateBestTrial();// 更新最优路径信息素
+				updateBadestTrial();// 更新最差路径信息素
+			} else if (i >= count) {
+				updateTrial(); // 更新信息素
 			}
 			System.out.println((i + 1) + ": " + bestAnt.getMovedPathLength());
 			for (int j = 0; j < ACO.N_ANT_COUNT; j++) {// 重新设置每只蚂蚁
@@ -162,8 +163,8 @@ public class ACOTest {
 
 	public static void main(String[] args) {
 		ACOTest acoTest = new ACOTest();
-		String startRoad = "-10425130";
-		String endRoad = "-31241816#3";
+		String startRoad = "-10425131";
+		String endRoad = "4006702#2";
 		acoTest.initData(startRoad, endRoad);
 		long startTimeOne = System.currentTimeMillis();
 		acoTest.search(startRoad, endRoad);

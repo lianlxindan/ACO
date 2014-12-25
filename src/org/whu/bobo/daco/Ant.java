@@ -127,7 +127,12 @@ public class Ant {
 			AntNode nextRoad = allowedRoad.get(i);
 			if (!movedPath.contains(nextRoad)) {
 				double a = nextRoad.getPheromone();
-				double b = nextRoad.getRoadWeight();
+				double b = countH(nextRoad, this.endRoad) * (1 - ACO.P) // 用与终点的距离和自身的长度作为期望因子
+						+ ACO.P * nextRoad.getRoadWeight();
+				if (b == 0.0) { // 当前点已经是终点 直接返回
+					selectedRoad = nextRoad;
+					return selectedRoad;
+				}
 				double x = Math.pow(a, ACO.ALPHA);
 				double y = Math.pow(1.0 / b, ACO.BETA);
 				prob[i] = x * y;
@@ -171,7 +176,6 @@ public class Ant {
 			AntNode temp = movedPath.get(i);
 			movedPathLength += temp.getRoadWeight();
 		}
-		movedPathLength -= movedPath.get(0).getRoadWeight();
 	}
 
 	// 打印蚂蚁走过的路径
@@ -200,4 +204,11 @@ public class Ant {
 		return result;
 	}
 
+	// 计算节点到终点的欧式距离
+	public double countH(AntNode node, AntNode eNode) {
+		double res = 0.0;
+		res = Math.sqrt(Math.pow(node.getxPos() - eNode.getxPos(), 2)
+				+ Math.pow(node.getyPos() - eNode.getyPos(), 2));
+		return res;
+	}
 }

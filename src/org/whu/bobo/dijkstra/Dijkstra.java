@@ -73,9 +73,10 @@ public class Dijkstra {
 			totalCost += p.getRoadWeight();
 			p = p.getParentNode();
 		}
+		totalCost += sNode.getRoadWeight();
 		resultList.add(sNode);
 		Collections.reverse(resultList);
-		System.out.print("bestPath: ");
+		System.out.print("bestPath:");
 		for (int i = 0; i < resultList.size(); i++) {
 			if (i != resultList.size() - 1) {
 				System.out.print(resultList.get(i).getRoadName() + "->");

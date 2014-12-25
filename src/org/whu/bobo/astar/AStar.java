@@ -9,6 +9,12 @@ import java.util.Set;
 
 import org.whu.bobo.data.Mobility;
 
+/**
+ * 1.31982182#1:0 2.4319349:0
+ * 
+ * @author bobo
+ *
+ */
 public class AStar {
 	private HashMap<ANode, List<ANode>> roadMap;// 当前街道可以连通的街道map
 	private List<ANode> openList;// 开启列表
@@ -188,6 +194,7 @@ public class AStar {
 
 	private void display(List<ANode> resultList) {
 		double cost = 0.0;
+		System.out.print("bestPath:");
 		for (int i = 0; i < resultList.size(); i++) {
 			if (i != resultList.size() - 1) {
 				System.out.print(resultList.get(i).getRoadName() + "->");
@@ -202,6 +209,9 @@ public class AStar {
 	public static void main(String[] args) {
 		AStar astar = new AStar();
 		astar.setRoadMap();
+		long timeOne = System.currentTimeMillis();
 		astar.search("-10425131", "4006702#2");
+		long timeTwo = System.currentTimeMillis();
+		System.out.println("cost time: " + (timeTwo - timeOne) + "ms");
 	}
 }

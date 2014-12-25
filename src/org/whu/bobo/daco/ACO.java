@@ -9,7 +9,7 @@ import java.util.Set;
 import org.whu.bobo.data.Mobility;
 
 /**
- * 改进蚁群算法 1.局部、全局信息素更新 2.最小最大蚂蚁系统 3.信息素更新策略 4.双向蚁群算
+ * 改进蚁群算法 1.局部、全局信息素更新 2.最小最大蚂蚁系统 3.信息素更新策略 4.双向蚁群算 5.加入方向性 6.用与终点的距离作为期望因子
  * 
  * @author bobo
  *
@@ -29,8 +29,12 @@ public class ACO {
 		Mobility m = new Mobility();
 		String[] roadInfo = m.getRoadInfo();
 		for (int i = 1; i < roadInfo.length; i += 2) {
-			AntNode road = new AntNode(roadInfo[i],
-					Double.parseDouble(roadInfo[i + 1]), pre_trial);
+			String roadName = roadInfo[i];
+			String roadWeight = roadInfo[i + 1];
+			double xPos = m.getCoordData(roadName).get(0);
+			double yPos = m.getCoordData(roadName).get(1);
+			AntNode road = new AntNode(roadName,
+					Double.parseDouble(roadWeight), xPos, yPos, pre_trial);
 			roadMap.put(road, null);
 		}
 		Set<AntNode> set = roadMap.keySet();
