@@ -37,7 +37,7 @@ public class ANodeUtil {
 	}
 
 	// 通过名称获取道路
-	public static ANode getDNode(HashMap<ANode, List<ANode>> roadMap,
+	public static ANode getANode(HashMap<ANode, List<ANode>> roadMap,
 			String edgeName) {
 		ANode result = null;
 		Set<ANode> set = roadMap.keySet();

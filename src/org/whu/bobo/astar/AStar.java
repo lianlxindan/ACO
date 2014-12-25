@@ -3,7 +3,11 @@ package org.whu.bobo.astar;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import org.whu.bobo.data.Mobility;
 
 public class AStar {
 	private HashMap<ANode, List<ANode>> roadMap;// 当前街道可以连通的街道map
@@ -14,6 +18,36 @@ public class AStar {
 		roadMap = new HashMap<ANode, List<ANode>>();
 		openList = new ArrayList<ANode>();
 		closeList = new ArrayList<ANode>();
+	}
+
+	// 构建地图map
+	public void setRoadMap() {
+		Mobility m = new Mobility();
+		String[] roadInfo = m.getRoadInfo();
+		for (int i = 1; i < roadInfo.length; i += 2) {
+			String roadName = roadInfo[i];
+			String roadWeight = roadInfo[i + 1];
+			double xPos = m.getCoordData(roadName).get(0);
+			double yPos = m.getCoordData(roadName).get(1);
+			ANode road = new ANode(roadName, xPos, yPos,
+					Double.parseDouble(roadWeight), null);
+			roadMap.put(road, null);
+		}
+		Set<ANode> set = roadMap.keySet();
+		int i = 1;
+		for (Iterator<ANode> iter = set.iterator(); iter.hasNext();) {
+			ANode key = (ANode) iter.next();
+			List<String> edges = m.getNextEdges(key.getRoadName());
+			List<ANode> nodeLink = new ArrayList<ANode>();
+			for (int j = 0; j < edges.size(); j++) {
+				String edge = edges.get(j);
+				ANode temp = ANodeUtil.getANode(roadMap, edge);
+				nodeLink.add(temp);
+			}
+			roadMap.put(key, nodeLink);
+			System.out.println(i + ":" + roadMap.size());
+			i++;
+		}
 	}
 
 	// 构造地图map
@@ -62,8 +96,8 @@ public class AStar {
 	}
 
 	public void search(String startRoad, String endRoad) {
-		ANode sNode = ANodeUtil.getDNode(roadMap, startRoad);
-		ANode eNode = ANodeUtil.getDNode(roadMap, endRoad);
+		ANode sNode = ANodeUtil.getANode(roadMap, startRoad);
+		ANode eNode = ANodeUtil.getANode(roadMap, endRoad);
 		openList.add(sNode);
 		search(sNode, eNode);
 	}
@@ -167,7 +201,7 @@ public class AStar {
 
 	public static void main(String[] args) {
 		AStar astar = new AStar();
-		astar.setRoadTempMap();
-		astar.search("1", "10");
+		astar.setRoadMap();
+		astar.search("-10425131", "4006702#2");
 	}
 }

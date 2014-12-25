@@ -9,7 +9,7 @@ import java.util.Set;
 import org.whu.bobo.data.Mobility;
 
 /**
- * 改进蚁群算法 1.局部、全局信息素更新 2.最小最大蚂蚁系统 3.信息素更新策略
+ * 改进蚁群算法 1.局部、全局信息素更新 2.最小最大蚂蚁系统 3.信息素更新策略 4.双向蚁群算
  * 
  * @author bobo
  *

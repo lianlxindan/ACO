@@ -7,20 +7,19 @@ import java.util.List;
 import edu.princeton.cs.introcs.In;
 
 public class Mobility implements MobilityInterface {
-	public static String filePath = "con-connect.txt";
+	public static String filePath = "con-connect-three.txt";
 	public static HashMap<String, Double> EdgeLength = new HashMap<String, Double>();
 
 	public static List<String> dataSource;
 
+	public static List<String> shapeData;
+	public static HashMap<String, List<Double>> shapeCoord;
+
 	public Mobility() {
 		dataSource = new ArrayList<String>();
+		shapeData = new ArrayList<String>();
+		shapeCoord = new HashMap<String, List<Double>>();
 		initData();
-	}
-
-	public String[] getDataFromFile() {
-		@SuppressWarnings("deprecation")
-		String res[] = In.readStrings(filePath);
-		return res;
 	}
 
 	// 初始化数据
@@ -28,7 +27,11 @@ public class Mobility implements MobilityInterface {
 		@SuppressWarnings("deprecation")
 		String res[] = In.readStrings(filePath);
 		for (int i = 0; i < res.length; i++) {
-			dataSource.add(res[i]);
+			if (res[i].startsWith("shape")) {
+				shapeData.add(res[i]);
+			} else {
+				dataSource.add(res[i]);
+			}
 		}
 		int index = dataSource.size() - 2;
 		String allLength = dataSource.get(index);
@@ -36,6 +39,46 @@ public class Mobility implements MobilityInterface {
 		for (int i = 1; i < everyLength.length; i += 2) {
 			EdgeLength.put(everyLength[i],
 					Double.parseDouble(everyLength[i + 1]));
+		}
+		setMapCoord();
+	}
+
+	public List<Double> getCoordData(String edge) {
+		return shapeCoord.get(edge);
+	}
+
+	private double getAvgCoord(List<Double> res, int flag) {
+		double total = 0.0;
+		if (flag == 0) {
+			for (int i = 0; i < res.size() - 1; i += 2) {
+				total += res.get(i);
+			}
+			return total / res.size() * 2;
+		} else if (flag == 1) {
+			for (int i = 1; i < res.size(); i += 2) {
+				total += res.get(i);
+			}
+			return total / res.size() * 2;
+		} else {
+			return 0.0;
+		}
+	}
+
+	public void setMapCoord() {
+		List<Double> data = new ArrayList<Double>();
+		for (int i = 0; i < shapeData.size(); i++) {
+			data.clear();
+			String[] res = shapeData.get(i).split(",");
+			String edgeName = res[1];
+			for (int j = 2; j < res.length; j++) {
+				data.add(Double.parseDouble(res[j]));
+			}
+			List<Double> coord = new ArrayList<Double>();
+			double xPos = getAvgCoord(data, 0);
+			double yPos = getAvgCoord(data, 1);
+			coord.add(xPos);
+			coord.add(yPos);
+			shapeCoord.put(edgeName, coord);
 		}
 	}
 
@@ -96,10 +139,6 @@ public class Mobility implements MobilityInterface {
 
 	public static void main(String[] args) {
 		Mobility m = new Mobility();
-		int size = m.getAllEdges().size();
-		System.out.println(size);
-		System.out.println(dataSource.size());
-		System.out.println(m.getEdgeLength("0/0to0/1"));
-		System.out.println(m.getNextEdges("0/1to1/1").size());
+		System.out.println(m.getCoordData("--5558").get(0));
 	}
 }
