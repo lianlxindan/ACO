@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.whu.bobo.data.Mobility;
+
 /**
  * D*算法
  * 
@@ -27,6 +29,36 @@ public class DStar {
 		closeList = new ArrayList<DNode>();
 		uPriority = new ArrayList<DNode>();
 		key_node = new ArrayList<DNode>();
+	}
+
+	// 构造地图map
+	public void setRoadMap() {
+		Mobility m = new Mobility();
+		String[] roadInfo = m.getRoadInfo();
+		for (int i = 1; i < roadInfo.length; i += 2) {
+			String roadName = roadInfo[i];
+			String roadWeight = roadInfo[i + 1];
+			double xPos = m.getCoordData(roadName).get(0);
+			double yPos = m.getCoordData(roadName).get(1);
+			DNode road = new DNode(roadName, xPos, yPos,
+					Double.parseDouble(roadWeight), null);
+			roadMap.put(road, null);
+		}
+		Set<DNode> set = roadMap.keySet();
+		int i = 1;
+		for (Iterator<DNode> iter = set.iterator(); iter.hasNext();) {
+			DNode key = (DNode) iter.next();
+			List<String> edges = m.getNextEdges(key.getRoadName());
+			List<DNode> nodeLink = new ArrayList<DNode>();
+			for (int j = 0; j < edges.size(); j++) {
+				String edge = edges.get(j);
+				DNode temp = getDNode(edge);
+				nodeLink.add(temp);
+			}
+			roadMap.put(key, nodeLink);
+			System.out.println(i + ":" + roadMap.size());
+			i++;
+		}
 	}
 
 	// 构造地图map

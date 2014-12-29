@@ -63,6 +63,7 @@ public class Ant {
 		movedPathLength = startRoad.getRoadWeight();
 		movedPath = new ArrayList<AntNode>();
 		movedPath.add(startRoad);
+		startRoad.setCount(startRoad.getCount() + 1);
 	}
 
 	// 蚂蚁克隆函数
@@ -87,6 +88,7 @@ public class Ant {
 		}
 		while (true) {
 			curRoad = chooseNextRoad();
+			curRoad.setCount(curRoad.getCount() + 1); // 蚂蚁走过的路径 标识+1;
 			if (curRoad != null) {
 				movedPath.add(curRoad);
 				if (curRoad.getRoadName().equals(endRoad.getRoadName())) {
@@ -145,6 +147,9 @@ public class Ant {
 			}
 		}
 		double p = ACOUtil.rnd(0.0, 1.0);// 伪概率事件选择道路
+
+		// 自适应阈值实现
+		// double p = countThreshold(iter);
 		if ((p > ACO.P) && p < (1.0 - ACO.P)) {// 下面进行轮盘选择
 			double dbTemp = 0.0;
 			if (dbTotal > 0.0) {
@@ -210,5 +215,16 @@ public class Ant {
 		res = Math.sqrt(Math.pow(node.getxPos() - eNode.getxPos(), 2)
 				+ Math.pow(node.getyPos() - eNode.getyPos(), 2));
 		return res;
+	}
+
+	// 计算自适应阈值
+	public double countThreshold(int iter) {
+		double num = Math.pow(iter, 2);
+		return 1 - Math.pow(Math.E, -num);
+	}
+
+	public static void main(String[] args) {
+		Ant a = new Ant();
+		System.out.println(a.countThreshold(6));
 	}
 }

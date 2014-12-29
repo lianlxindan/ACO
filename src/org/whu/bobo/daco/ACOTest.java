@@ -67,6 +67,23 @@ public class ACOTest {
 		setMaxMinTrial();
 	}
 
+	// 跳出局部最优函数
+	public void reduceBestPathTrial() {
+		for (int i = 0; i < bestAnt.getMovedPath().size(); i++) { // 当前局部最优信息素减小
+			AntNode bestTemp = bestAnt.getMovedPath().get(i);
+			bestTemp.setPheromone(bestTemp.getPheromone() * 0.5);
+		}
+		Set<AntNode> set = ACO.roadMap.keySet(); // 没有走过的路的信息素增加
+		for (Iterator<AntNode> iter = set.iterator(); iter.hasNext();) {
+			AntNode key = (AntNode) iter.next();
+			if (key.getCount() == 0 && key.getPheromone() != 0.0) {
+				key.setPheromone(key.getPheromone() * 5);
+			}
+		}
+		setMaxMinTrial();
+	}
+
+	// 更新每次迭代最差位置上的蚂蚁信息素
 	public void updateBadestTrial() {
 		for (int i = 0; i < badestAnt.getMovedPath().size(); i++) {
 			AntNode badestTemp = badestAnt.getMovedPath().get(i);
@@ -128,19 +145,33 @@ public class ACOTest {
 
 	// 开迭代始搜索
 	public void search(String startRoad, String endRoad) {
+		int continuousTime = 0; // 定义计数器 判断连续多少次最优路径没有更新
+		double p = 0.3; // 连续迭代超过总迭代的百分之三十 则判断为陷入局部最优
 		for (int i = 0; i < ACO.N_IT_COUNT; i++) {
 			for (int j = 0; j < ACO.N_ANT_COUNT; j++) {
-				ordAnts[j].move();
+				ordAnts[j].move(); // 核心函数 蚂蚁开始移动搜索
 			}
+			Ant localBestAnt = null;
 			for (int j = 0; j < ACO.N_ANT_COUNT; j++) {
-				if (bestAnt.getMovedPathLength() > ordAnts[j]
+				localBestAnt = ordAnts[0]; // 一次迭代局部最优蚂蚁
+				if (ordAnts[j].getMovedPathLength() < localBestAnt
 						.getMovedPathLength()) {
-					bestAnt = ordAnts[j].clone(); // 克隆一次迭代中最优蚂蚁
+					localBestAnt = ordAnts[j];
 				}
-				if (badestAnt.getMovedPathLength() < ordAnts[j]
+				if (badestAnt.getMovedPathLength() < ordAnts[j] // 找出一次迭代中的最差蚂蚁
 						.getMovedPathLength()) {
 					badestAnt = ordAnts[j].clone(); // 克隆一次迭代中最差蚂蚁
 				}
+			}
+			if (localBestAnt.getMovedPathLength() < bestAnt
+					.getMovedPathLength()) {
+				bestAnt = localBestAnt.clone();
+				continuousTime = 0;
+			} else {
+				continuousTime++;
+			}
+			if (continuousTime >= p * ACO.N_IT_COUNT) {// 如果经历这么多次迭代没有更新最优
+				reduceBestPathTrial(); // 减少当前这条路径的信息素
 			}
 			int count = (int) (ACO.N_IT_COUNT * ACO.P * 5);
 			if (i < count) {
@@ -171,6 +202,5 @@ public class ACOTest {
 		long endTimeOne = System.currentTimeMillis();
 		System.out.println("costTime: " + (endTimeOne - startTimeOne) + " ms");
 		acoTest.bestAnt.displayPath();
-
 	}
 }

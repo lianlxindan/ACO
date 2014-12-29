@@ -3,6 +3,7 @@ package org.whu.bobo.daco;
 public class AntNode {
 	private String roadName; // 道路名称
 
+	private int count; // 记录街道被蚂蚁走过的次数
 	private double xPos; // 道路横坐标
 	private double yPos; // 道路纵坐标
 	private double roadWeight;// 道路权值
@@ -15,6 +16,16 @@ public class AntNode {
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.pheromone = pheromone;
+
+		this.count = 0; 
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
 	}
 
 	public double getxPos() {
