@@ -17,7 +17,7 @@ public class AntNode {
 		this.yPos = yPos;
 		this.pheromone = pheromone;
 
-		this.count = 0; 
+		this.count = 0;
 	}
 
 	public int getCount() {

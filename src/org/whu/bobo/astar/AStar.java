@@ -107,7 +107,6 @@ public class AStar {
 		openList.add(sNode);
 		search(sNode, eNode);
 	}
-
 	private List<ANode> search(ANode sNode, ANode eNode) {
 		List<ANode> resultList = new ArrayList<ANode>();
 		boolean isFind = false;

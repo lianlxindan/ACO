@@ -52,7 +52,11 @@ public class Ant {
 
 	// 默认构造函数
 	public Ant() {
-
+		startRoad = null;
+		endRoad = null;
+		curRoad = null;
+		movedPathLength = 0.0;
+		movedPath = new ArrayList<AntNode>();
 	}
 
 	// 构造函数
@@ -88,14 +92,13 @@ public class Ant {
 		}
 		while (true) {
 			curRoad = chooseNextRoad();
-			curRoad.setCount(curRoad.getCount() + 1); // 蚂蚁走过的路径 标识+1;
 			if (curRoad != null) {
+				curRoad.setCount(curRoad.getCount() + 1); // 蚂蚁走过的路径 标识+1;
 				movedPath.add(curRoad);
 				if (curRoad.getRoadName().equals(endRoad.getRoadName())) {
 					break;
 				}
 			} else {
-				System.out.println("No way to the road!");
 				return;
 			}
 		}
@@ -119,6 +122,10 @@ public class Ant {
 			int removeIndex = movedPath.size() - 1;
 			movedPath.remove(removeIndex);
 			allowedRoad = setAllowedRoad();
+			if (allowedRoad.size() == 0 && curRoad == startRoad) {
+				movedPath.clear();
+				return null;
+			}
 		}
 		int size = allowedRoad.size();
 		double[] prob = new double[size];
@@ -128,9 +135,10 @@ public class Ant {
 		for (int i = 0; i < allowedRoad.size(); i++) {
 			AntNode nextRoad = allowedRoad.get(i);
 			if (!movedPath.contains(nextRoad)) {
+				double p = 0.1;
 				double a = nextRoad.getPheromone();
-				double b = countH(nextRoad, this.endRoad) * (1 - ACO.P) // 用与终点的距离和自身的长度作为期望因子
-						+ ACO.P * nextRoad.getRoadWeight();
+				double b = countH(nextRoad, this.endRoad) * (1 - p) // 用与终点的距离和自身的长度作为期望因子
+						+ p * nextRoad.getRoadWeight();
 				if (b == 0.0) { // 当前点已经是终点 直接返回
 					selectedRoad = nextRoad;
 					return selectedRoad;
@@ -185,6 +193,9 @@ public class Ant {
 
 	// 打印蚂蚁走过的路径
 	public void displayPath() {
+		if (movedPath.size() == 0) {
+			return;
+		}
 		System.out.print("bestAnt Path: ");
 		for (int i = 0; i < movedPath.size(); i++) {
 			if (i != movedPath.size() - 1) {

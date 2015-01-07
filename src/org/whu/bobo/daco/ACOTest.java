@@ -46,15 +46,16 @@ public class ACOTest {
 	public void initData(String startRoad, String endRoad) {
 		ACO aco = new ACO();
 		aco.setRoadMap(0.1); // 构建路网拓扑
-		AntNode sAntNode = ACO.getAntNode(startRoad);
-		AntNode eAntNode = ACO.getAntNode(endRoad);
+		// aco.setTempMap(0.1);
+		AntNode sAntNode = aco.getAntNode(startRoad);
+		AntNode eAntNode = aco.getAntNode(endRoad);
 		AntNode curAntNode = sAntNode;
 		for (int i = 0; i < ACO.N_ANT_COUNT; i++) {
 			Ant temp = new Ant(sAntNode, eAntNode, curAntNode);
 			ordAnts[i] = temp;
 		}
 		bestAnt.setMovedPathLength(Double.MAX_VALUE); // 初始化最好的蚂蚁的数据
-		badestAnt.setMovedPathLength(Double.MIN_NORMAL);
+		badestAnt.setMovedPathLength(Double.MIN_VALUE);// 初始化最差的蚂蚁的数据
 	}
 
 	// 更新每次迭代最好位置上的蚂蚁信息素
@@ -69,9 +70,18 @@ public class ACOTest {
 
 	// 跳出局部最优函数
 	public void reduceBestPathTrial() {
-		for (int i = 0; i < bestAnt.getMovedPath().size(); i++) { // 当前局部最优信息素减小
-			AntNode bestTemp = bestAnt.getMovedPath().get(i);
-			bestTemp.setPheromone(bestTemp.getPheromone() * 0.5);
+		for (int i = 0; i < ACO.N_ANT_COUNT; i++) {
+			for (int j = 0; j < ordAnts[i].getMovedPath().size(); j++) {// 当前局部最优信息素减小
+				if (ordAnts[i].getMovedPathLength() == bestAnt
+						.getMovedPathLength()) {
+					AntNode temp = ordAnts[i].getMovedPath().get(j);
+					temp.setPheromone(temp.getPheromone() * 0.5);
+				} else if (ordAnts[i].getMovedPathLength() > bestAnt
+						.getMovedPathLength()) {
+					AntNode temp = ordAnts[i].getMovedPath().get(j);
+					temp.setPheromone(temp.getPheromone() * 0.1);
+				}
+			}
 		}
 		Set<AntNode> set = ACO.roadMap.keySet(); // 没有走过的路的信息素增加
 		for (Iterator<AntNode> iter = set.iterator(); iter.hasNext();) {
@@ -146,10 +156,14 @@ public class ACOTest {
 	// 开迭代始搜索
 	public void search(String startRoad, String endRoad) {
 		int continuousTime = 0; // 定义计数器 判断连续多少次最优路径没有更新
-		double p = 0.3; // 连续迭代超过总迭代的百分之三十 则判断为陷入局部最优
+		double p = 0.1; // 连续迭代超过总迭代的百分之三十 则判断为陷入局部最优
 		for (int i = 0; i < ACO.N_IT_COUNT; i++) {
 			for (int j = 0; j < ACO.N_ANT_COUNT; j++) {
 				ordAnts[j].move(); // 核心函数 蚂蚁开始移动搜索
+				if (ordAnts[0].getMovedPath().size() == 0) {
+					System.out.println("no road to the end!");
+					return;
+				}
 			}
 			Ant localBestAnt = null;
 			for (int j = 0; j < ACO.N_ANT_COUNT; j++) {
