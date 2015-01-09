@@ -2,6 +2,10 @@ package org.whu.bobo.aco;
 
 import java.util.HashMap;
 
+/**
+ * @author bobo
+ * @version_1.0
+ */
 public class ACO {
 	public static HashMap<Integer, HashMap<Integer, Double>> roadNetInfo = new HashMap<Integer, HashMap<Integer, Double>>();// 路网邻接表
 	public static double ALPHA = 1.0;// 启发因子，信息素的重要程度

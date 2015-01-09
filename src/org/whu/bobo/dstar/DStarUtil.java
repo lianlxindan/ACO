@@ -6,11 +6,11 @@ public class DStarUtil {
 
 	// 改变道路权值
 	public static void setRoadWeight(DNode node, int flag) {
-		double p = 0.7;
+		double p = 0.1;
 		if (flag == 0) {
 			node.setRoadWeight(node.getRoadWeight() * p);
 		} else if (flag == 1) {
-			node.setRoadWeight(node.getRoadWeight() * (1 + p));
+			node.setRoadWeight(node.getRoadWeight() * (5 + p));
 		}
 	}
 
@@ -22,7 +22,12 @@ public class DStarUtil {
 
 	// 计算key值
 	public static void setKey(DNode node) {
-		Key key = new Key();
+		Key key = null;
+		if (node.getKey() != null) {
+			key = node.getKey();
+		} else {
+			key = new Key();
+		}
 		double key1 = Math.min(node.getG(), node.getRhs()) + node.getH();
 		double key2 = Math.min(node.getG(), node.getRhs());
 		key.setKey1(key1);

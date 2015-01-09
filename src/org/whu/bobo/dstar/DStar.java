@@ -13,10 +13,10 @@ import org.whu.bobo.data.Mobility;
  * D*算法
  * 
  * @author bobo
- *
  */
 public class DStar {
-	private HashMap<DNode, List<DNode>> roadMap;// 当前街道可以连通的街道map
+	private HashMap<DNode, List<DNode>> roadMap;// 当前街道可以连通的街道map 后向集合
+	private HashMap<DNode, List<DNode>> reverseRoadMap; // 前向集合
 	private List<DNode> openList; // 开启列表
 	private List<DNode> closeList; // 关闭列表
 	private List<DNode> uPriority; // 优先队列
@@ -25,39 +25,21 @@ public class DStar {
 	// 构造函数
 	public DStar() {
 		roadMap = new HashMap<DNode, List<DNode>>();
+		reverseRoadMap = new HashMap<DNode, List<DNode>>();
 		openList = new ArrayList<DNode>();
 		closeList = new ArrayList<DNode>();
 		uPriority = new ArrayList<DNode>();
 		key_node = new ArrayList<DNode>();
 	}
 
-	// 构造地图map
-	public void setRoadMap() {
-		Mobility m = new Mobility();
-		String[] roadInfo = m.getRoadInfo();
-		for (int i = 1; i < roadInfo.length; i += 2) {
-			String roadName = roadInfo[i];
-			String roadWeight = roadInfo[i + 1];
-			double xPos = m.getCoordData(roadName).get(0);
-			double yPos = m.getCoordData(roadName).get(1);
-			DNode road = new DNode(roadName, xPos, yPos,
-					Double.parseDouble(roadWeight), null);
-			roadMap.put(road, null);
-		}
+	// 初始化路网
+	private void initRoadMap() {
+		double maxValue = Double.MAX_VALUE;
 		Set<DNode> set = roadMap.keySet();
-		int i = 1;
 		for (Iterator<DNode> iter = set.iterator(); iter.hasNext();) {
 			DNode key = (DNode) iter.next();
-			List<String> edges = m.getNextEdges(key.getRoadName());
-			List<DNode> nodeLink = new ArrayList<DNode>();
-			for (int j = 0; j < edges.size(); j++) {
-				String edge = edges.get(j);
-				DNode temp = getDNode(edge);
-				nodeLink.add(temp);
-			}
-			roadMap.put(key, nodeLink);
-			System.out.println(i + ":" + roadMap.size());
-			i++;
+			key.setG(maxValue);
+			key.setRhs(maxValue);
 		}
 	}
 
@@ -66,9 +48,9 @@ public class DStar {
 		DNode road1 = new DNode("1", 1.0, 1.0, 1.2, null);
 		DNode road2 = new DNode("2", 1.0, 2.0, 1.7, null);
 		DNode road3 = new DNode("3", 2.0, 2.0, 2.3, null);
-		DNode road4 = new DNode("4", 3.0, 2.0, 1.0, null);
-		DNode road5 = new DNode("5", 2.0, 3.0, 1.7, null);
-		DNode road6 = new DNode("6", 3.0, 4.0, 1.8, null);
+		DNode road4 = new DNode("4", 3.0, 2.0, 3.0, null);
+		DNode road5 = new DNode("5", 2.0, 3.0, 4.7, null);
+		DNode road6 = new DNode("6", 3.0, 4.0, 3.8, null);
 		DNode road7 = new DNode("7", 4.0, 2.0, 2.8, null);
 		DNode road8 = new DNode("8", 2.0, 4.0, 1.8, null);
 		DNode road9 = new DNode("9", 1.0, 3.0, 2.4, null);
@@ -101,142 +83,67 @@ public class DStar {
 		temp7.add(road10);
 		roadMap.put(road7, temp7);
 		roadMap.put(road8, null);
-		roadMap.put(road9, null);
+		List<DNode> temp9 = new ArrayList<DNode>();
+		//temp9.add(road10);
+		roadMap.put(road9, temp9);
 		roadMap.put(road10, null);
 		roadMap.put(road11, null);
+		setReverseRoadMap();
 		initRoadMap();
 	}
 
-	// 初始化路网
-	private void initRoadMap() {
-		double maxValue = Double.MAX_VALUE;
+	// 构造地图map
+	public void setRoadMap() {
+		Mobility m = new Mobility();
+		String[] roadInfo = m.getRoadInfo();
+		for (int i = 1; i < roadInfo.length; i += 2) {
+			String roadName = roadInfo[i];
+			String roadWeight = roadInfo[i + 1];
+			double xPos = m.getCoordData(roadName).get(0);
+			double yPos = m.getCoordData(roadName).get(1);
+			DNode road = new DNode(roadName, xPos, yPos,
+					Double.parseDouble(roadWeight), null);
+			road.setRhs(Double.MAX_VALUE);
+			road.setG(Double.MAX_VALUE);
+			roadMap.put(road, null);
+		}
+		Set<DNode> set = roadMap.keySet();
+		int i = 1;
+		for (Iterator<DNode> iter = set.iterator(); iter.hasNext();) {
+			DNode key = (DNode) iter.next();
+			List<String> edges = m.getNextEdges(key.getRoadName());
+			List<DNode> nodeLink = new ArrayList<DNode>();
+			for (int j = 0; j < edges.size(); j++) {
+				String edge = edges.get(j);
+				DNode temp = getDNode(edge);
+				nodeLink.add(temp);
+			}
+			roadMap.put(key, nodeLink);
+			System.out.println(i + ":" + roadMap.size());
+			i++;
+		}
+		setReverseRoadMap(); // 构造前向集合
+	}
+
+	// 构造反向路网map
+	public void setReverseRoadMap() {
 		Set<DNode> set = roadMap.keySet();
 		for (Iterator<DNode> iter = set.iterator(); iter.hasNext();) {
 			DNode key = (DNode) iter.next();
-			key.setG(maxValue);
-			key.setRhs(maxValue);
-		}
-	}
-
-	/**
-	 * 开始沿着最优路径移动
-	 * 
-	 * @param startRoad
-	 * @param endRoad
-	 */
-	public void move(String startRoad, String endRoad) {
-		DNode sNode = getDNode(startRoad);
-		DNode eNode = getDNode(endRoad);
-		initRoad(startRoad, endRoad);
-		search(eNode, sNode);
-		boolean flag = false;
-		while (sNode != eNode) { // 沿着最优路径移动 当路况变化时再次规划路径
-			sNode = sNode.getParentNode();
-			if (sNode.getRoadName() == "3") {
-				DNode changeNode = getDNode("6");
-				if (closeList.contains(changeNode)) {
-					closeList.remove(changeNode);
-				}
-				DStarUtil.setRoadWeight(changeNode, 1);
-				openList.add(changeNode);
-				uPriority.add(changeNode);
-				while (openList.size() > 0) {
-					DNode node = openList.get(0);
-					if (node.getG() > node.getRhs()) {
-						node.setG(node.getRhs());
-						if (node.getRoadName().equals(sNode.getRoadName())) {
-							flag = true;
-							break;
-						}
-						List<DNode> allowedRoad = isRoadMapContainsNode(node);
-						for (int i = 0; i < allowedRoad.size(); i++) {
-							DNode temp = allowedRoad.get(i);
-							DStarUtil.countH(temp, sNode);
-							updateRoad(temp, eNode);
-						}
-					} else {
-						node.setG(Double.MAX_VALUE);
-						updateRoad(node, eNode);
-						List<DNode> allowedRoad = isRoadMapContainsNode(node);
-						for (int i = 0; i < allowedRoad.size(); i++) {
-							DNode temp = allowedRoad.get(i);
-							DStarUtil.countH(temp, sNode);
-							updateRoad(temp, eNode);
-						}
-					}
-					closeList.add(openList.remove(0));
-					uPriority.remove(0);
-					Collections.sort(uPriority, new DNodeFComparator());
-					if (uPriority.size() == 0) {
-						System.out.println("当前点为: " + sNode.getRoadName());
-						System.out.println("重规划后路径为: ");
-						display(sNode, eNode);
-					} else {
-						openList.add(uPriority.get(0));
-					}
-				}
-				if (flag) {
-					System.out.println("当前点为: " + sNode.getRoadName());
-					System.out.print("重规划后路径为: ");
-					display(sNode, eNode);
+			List<DNode> reverseLink = new ArrayList<DNode>();
+			for (Iterator<DNode> it = set.iterator(); it.hasNext();) {
+				DNode rKey = (DNode) it.next();
+				List<DNode> temp = roadMap.get(rKey);
+				if (temp != null && temp.contains(key)) {
+					reverseLink.add(rKey);
 				}
 			}
+			reverseRoadMap.put(key, reverseLink);
 		}
 	}
 
-	/**
-	 * 检查路况发生变化
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("unused")
-	private List<DNode> checkRoadChange() {
-		List<DNode> result = new ArrayList<DNode>();
-		return result;// 不需要重规划就返回null
-	}
-
-	/**
-	 * 反向可连通的点
-	 * 
-	 * @param node
-	 * @return
-	 */
-	private List<DNode> isRoadMapContainsNode(DNode node) {
-		List<DNode> result = new ArrayList<DNode>();
-		Set<DNode> set = roadMap.keySet();
-		for (Iterator<DNode> iter = set.iterator(); iter.hasNext();) {
-			DNode key = (DNode) iter.next();
-			List<DNode> temp = roadMap.get(key);
-			if (temp != null && temp.contains(node)) {
-				result.add(key);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * 将 openList和closeList 加入到key_node
-	 */
-	public void addNodeTokeyNode() {
-		for (int i = 0; i < openList.size(); i++) {
-			key_node.add(openList.get(i));
-		}
-		for (int i = 0; i < closeList.size(); i++) {
-			if (!key_node.contains(closeList.get(i))) {
-				key_node.add(closeList.get(i));
-			}
-		}
-	}
-
-	/**
-	 * 开始搜索最优路径初始化
-	 * 
-	 * @param startRoad
-	 * @param endRoad
-	 */
-	private void initRoad(String startRoad, String endRoad) {
-		DNode sNode = getDNode(startRoad);
-		DNode eNode = getDNode(endRoad);
+	// 开始搜索最优路径初始化
+	private void initRoad(DNode sNode, DNode eNode) {
 		DStarUtil.countH(eNode, sNode);
 		eNode.setRhs(0.0);
 		DStarUtil.setKey(eNode);
@@ -252,12 +159,12 @@ public class DStar {
 			node = openList.get(0);
 			if (node.getG() > node.getRhs()) {
 				node.setG(node.getRhs());
-				if (node.getRoadName() == sNode.getRoadName()) {
+				if (node.getRoadName().equals(sNode.getRoadName())) {
 					openList.remove(0);
 					isFind = true;
 					break;
 				}
-				List<DNode> allowedRoad = isRoadMapContainsNode(node);
+				List<DNode> allowedRoad = getRverseListNode(node);
 				for (int i = 0; i < closeList.size(); i++) { // 走到死胡同的时候
 					DNode temp = closeList.get(i);
 					if (allowedRoad.contains(temp)) {
@@ -272,7 +179,7 @@ public class DStar {
 			} else {
 				node.setG(Double.MAX_VALUE);
 				updateRoad(node, eNode);
-				List<DNode> allowedRoad = isRoadMapContainsNode(node);
+				List<DNode> allowedRoad = getRverseListNode(node);
 				for (int i = 0; i < closeList.size(); i++) { // 走到死胡同的时候
 					DNode temp = closeList.get(i);
 					if (allowedRoad.contains(temp)) {
@@ -287,6 +194,10 @@ public class DStar {
 			}
 			closeList.add(openList.remove(0));
 			Collections.sort(uPriority, new DNodeFComparator());
+			if (uPriority.size() == 0) {
+				System.out.println("No Road To The End!");
+				return;
+			}
 			openList.add(uPriority.remove(0));
 		}
 		if (isFind) {
@@ -296,11 +207,100 @@ public class DStar {
 		}
 	}
 
-	/**
-	 * 当路况发生变化时 更新rhs
-	 * 
-	 * @param node
-	 */
+	// 测试函数
+	public void moveTest(String startRoad, String endRoad) {
+		DNode sNode = getDNode(startRoad);
+		DNode eNode = getDNode(endRoad);
+		initRoad(sNode, eNode);
+		search(eNode, sNode);
+	}
+
+	// 开始沿着最优路径移动
+	public void move(String startRoad, String endRoad) {
+		DNode sNode = getDNode(startRoad);
+		DNode eNode = getDNode(endRoad);
+		initRoad(sNode, eNode);
+		search(eNode, sNode);
+		boolean flag = false;
+		while (sNode != eNode) { // 沿着最优路径移动 当路况变化时再次规划路径
+			sNode = sNode.getParentNode();
+			if (sNode.getRoadName() == "3") {
+				DNode changeNode = getDNode("6");
+				if (closeList.contains(changeNode)) {
+					closeList.remove(changeNode);
+				}
+				DStarUtil.setRoadWeight(changeNode, 0);
+				openList.add(changeNode);
+				uPriority.add(changeNode);
+				while (openList.size() > 0) {
+					DNode node = openList.get(0);
+					if (node.getG() > node.getRhs()) {
+						node.setG(node.getRhs());
+						if (node.getRoadName().equals(sNode.getRoadName())) {
+							flag = true;
+							break;
+						}
+						List<DNode> allowedRoad = getRverseListNode(node);
+						for (int i = 0; i < allowedRoad.size(); i++) {
+							DNode temp = allowedRoad.get(i);
+							DStarUtil.countH(temp, sNode);
+							updateRoad(temp, eNode);
+						}
+					} else {
+						node.setG(Double.MAX_VALUE);
+						updateRoad(node, eNode);
+						List<DNode> allowedRoad = getRverseListNode(node);
+						for (int i = 0; i < allowedRoad.size(); i++) {
+							DNode temp = allowedRoad.get(i);
+							DStarUtil.countH(temp, sNode);
+							updateRoad(temp, eNode);
+						}
+					}
+					closeList.add(openList.remove(0));
+					uPriority.remove(0);
+					Collections.sort(uPriority, new DNodeFComparator());
+					if (uPriority.size() == 0) { // 表示不需要重新规划
+						System.out.println("当前点为: " + sNode.getRoadName());
+						System.out.print("重规划后路径为: ");
+						display(sNode, eNode);
+					} else {
+						openList.add(uPriority.get(0));
+					}
+				}
+				if (flag) {
+					System.out.println("当前点为: " + sNode.getRoadName());
+					System.out.print("重规划后路径为: ");
+					display(sNode, eNode);
+				}
+			}
+		}
+	}
+
+	// 检查路况发生变化
+	@SuppressWarnings("unused")
+	private List<DNode> checkRoadChange() {
+		List<DNode> result = new ArrayList<DNode>();
+		return result;// 不需要重规划就返回null
+	}
+
+	// 得到前向集合
+	private List<DNode> getRverseListNode(DNode node) {
+		return reverseRoadMap.get(node);
+	}
+
+	// 将 openList和closeList 加入到key_node 未实现
+	public void addNodeTokeyNode() {
+		for (int i = 0; i < openList.size(); i++) {
+			key_node.add(openList.get(i));
+		}
+		for (int i = 0; i < closeList.size(); i++) {
+			if (!key_node.contains(closeList.get(i))) {
+				key_node.add(closeList.get(i));
+			}
+		}
+	}
+
+	// 当路况发生变化时 更新rhs
 	private void updateRoad(DNode paramNode, DNode eNode) {
 		DNode localRoad = null;
 		if (paramNode != eNode) {
@@ -328,11 +328,7 @@ public class DStar {
 		}
 	}
 
-	/**
-	 * 打印一次规划后的最优路径
-	 * 
-	 * @param node
-	 */
+	// 打印一次规划后的最优路径
 	private void display(DNode sNode, DNode eNode) {
 		double totalCost = 0.0;
 		DNode p = sNode;
@@ -357,12 +353,7 @@ public class DStar {
 		return result;
 	}
 
-	/**
-	 * 获取最佳路径
-	 * 
-	 * @param resultList
-	 * @param node
-	 */
+	// 获取最佳路径
 	@SuppressWarnings("unused")
 	private void getPath(List<DNode> resultList, DNode node) {
 		if (node.getParentNode() != null) {
@@ -389,5 +380,12 @@ public class DStar {
 		DStar dstar = new DStar();
 		dstar.setRoadTempMap();
 		dstar.move("1", "10");
+		// dstar.moveTest("1", "10");
+		// dstar.setRoadMap();
+		// long timeOne = System.currentTimeMillis();
+		// dstar.moveTest("-10425131", "4006702#2");
+		// long timeTwo = System.currentTimeMillis();
+		// System.out.println("cost time: " + (timeTwo - timeOne) + "ms");
+
 	}
 }

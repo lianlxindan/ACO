@@ -54,6 +54,28 @@ public class Dijkstra {
 			i++;
 		}
 	}
+	//初始化
+	private void init(Node sNode) {
+		closeList.add(sNode); // sNode 加入到closeList 其他加入到openList
+		sNode.setShortestWeight(0.0);
+		List<Node> nearests = roadMap.get(sNode);
+		Set<Node> set = roadMap.keySet();
+		for (Iterator<Node> iter = set.iterator(); iter.hasNext();) {
+			Node key = (Node) iter.next();
+			if (key != sNode) {
+				openList.add(key);
+			}
+		}
+		for (Iterator<Node> iter = set.iterator(); iter.hasNext();) {
+			Node key = (Node) iter.next();
+			if (nearests.contains(key)) {
+				key.setShortestWeight(key.getRoadWeight());
+			} else {
+				key.setShortestWeight(Double.MAX_VALUE);
+			}
+			key.setParentNode(sNode);
+		}
+	}
 
 	// 搜索函数
 	public void search(String startRoad, String endRoad) {
@@ -85,28 +107,6 @@ public class Dijkstra {
 			}
 		}
 		System.out.println("minCost: " + totalCost);
-	}
-
-	private void init(Node sNode) {
-		closeList.add(sNode); // sNode 加入到closeList 其他加入到openList
-		sNode.setShortestWeight(0.0);
-		List<Node> nearests = roadMap.get(sNode);
-		Set<Node> set = roadMap.keySet();
-		for (Iterator<Node> iter = set.iterator(); iter.hasNext();) {
-			Node key = (Node) iter.next();
-			if (key != sNode) {
-				openList.add(key);
-			}
-		}
-		for (Iterator<Node> iter = set.iterator(); iter.hasNext();) {
-			Node key = (Node) iter.next();
-			if (nearests.contains(key)) {
-				key.setShortestWeight(key.getRoadWeight());
-			} else {
-				key.setShortestWeight(Double.MAX_VALUE);
-			}
-			key.setParentNode(sNode);
-		}
 	}
 
 	// 核心函数

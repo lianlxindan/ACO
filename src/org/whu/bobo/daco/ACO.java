@@ -13,13 +13,16 @@ import org.whu.bobo.data.Mobility;
  * 7.引入节点活跃度:活跃度=分支数/节点总数 8.概率边计数值改进点 9 更新挥发系数 10 信息数每次更新公式的改进？ 11.自适应阈值
  * 12.如何跳出局部最优？ 引入遗传算法中的交叉算子？混沌搅动？ 13. 信息素和启发信息标准化 14.带方向的信息素更新策略 15.引入逆向蚂蚁
  * 
+ * 
+ * Question? 1.转向延误模型？ 2.实验对比得出什么？对比什么？
+ * 
  * @author bobo
- *
+ * @version 2.0
  */
 public class ACO {
 	public static HashMap<AntNode, List<AntNode>> roadMap = new HashMap<AntNode, List<AntNode>>();// 路网邻接表
-	public static double ALPHA = 1.0;// 启发因子，信息素的重要程度
-	public static double BETA = 2.5; // 期望因子，城市间距离的重要程度  需要调整
+	public static double ALPHA = 1.5;// 启发因子，信息素的重要程度
+	public static double BETA = 2.5; // 期望因子，城市间距离的重要程度 需要调整
 	public static double ROU = 0.5; // 信息素残留参数
 	public static double P = 0.2; // 伪概率事件
 	public static int N_ANT_COUNT = 10;// 蚂蚁数量
