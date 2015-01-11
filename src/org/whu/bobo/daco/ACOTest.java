@@ -131,8 +131,8 @@ public class ACOTest {
 			if (key.getPheromone() != 0.0) { // 最小最大信息素系统
 				if (key.getPheromone() < 0.1) {
 					key.setPheromone(0.1);
-				} else if (key.getPheromone() > 1.0) {
-					key.setPheromone(1.0);
+				} else if (key.getPheromone() > 5.0) {
+					key.setPheromone(5.0);
 				}
 			}
 		}
@@ -146,8 +146,8 @@ public class ACOTest {
 			if (key.getPheromone() != 0.0) {
 				if (key.getPheromone() < 0.1) {
 					key.setPheromone(0.1);
-				} else if (key.getPheromone() > 1.0) {
-					key.setPheromone(1.0);
+				} else if (key.getPheromone() > 5.0) {
+					key.setPheromone(5.0);
 				}
 			}
 		}
@@ -196,14 +196,18 @@ public class ACOTest {
 			}
 			System.out.println((i + 1) + ": " + bestAnt.getMovedPathLength());
 			for (int j = 0; j < ACO.N_ANT_COUNT; j++) {// 重新设置每只蚂蚁
-				ordAnts[j].setMovedPathLength(ordAnts[j].getStartRoad()
-						.getRoadWeight());
-				ordAnts[j].setCurRoad(ordAnts[j].getStartRoad());
-				List<AntNode> movedPath = ordAnts[j].getMovedPath();
-				movedPath.clear();
-				movedPath.add(ordAnts[j].getStartRoad());
+				resetAnt(ordAnts[j]);
 			}
 		}
+	}
+
+	// 重置蚂蚁
+	public void resetAnt(Ant ant) {
+		ant.setMovedPathLength(ant.getStartRoad().getRoadWeight());
+		ant.setCurRoad(ant.getStartRoad());
+		List<AntNode> movedPath = ant.getMovedPath();
+		movedPath.clear();
+		movedPath.add(ant.getStartRoad());
 	}
 
 	public static void main(String[] args) {

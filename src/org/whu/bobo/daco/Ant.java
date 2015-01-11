@@ -96,6 +96,7 @@ public class Ant {
 				curRoad.setCount(curRoad.getCount() + 1); // 蚂蚁走过的路径 标识+1;
 				movedPath.add(curRoad);
 				if (curRoad.getRoadName().equals(endRoad.getRoadName())) {
+					checkmovedPath();
 					break;
 				}
 			} else {
@@ -155,10 +156,7 @@ public class Ant {
 			}
 		}
 		double p = ACOUtil.rnd(0.0, 1.0);// 伪概率事件选择道路
-
-		// 自适应阈值实现
-		// double p = countThreshold(iter);
-		if ((p > ACO.P) && p < (1.0 - ACO.P)) {// 下面进行轮盘选择
+		if (p > ACO.P) {// 下面进行轮盘选择
 			double dbTemp = 0.0;
 			if (dbTotal > 0.0) {
 				dbTemp = ACOUtil.rnd(0.0, dbTotal);// 取一个随机数
@@ -171,13 +169,8 @@ public class Ant {
 					}
 				}
 			}
-		} else if (p <= ACO.P) {
-			selectedRoad = maxProbRoad;
 		} else {
-			int upIndex = allowedRoad.size() - 1;
-			int rndIndex = ACOUtil.rnd(0, upIndex);
-			AntNode nextRoad = allowedRoad.get(rndIndex);
-			selectedRoad = nextRoad;
+			selectedRoad = maxProbRoad;
 		}
 		return selectedRoad;
 	}
@@ -234,8 +227,24 @@ public class Ant {
 		return 1 - Math.pow(Math.E, -num);
 	}
 
+	// 检查是否出现路径是否出现绕路
+	private void checkmovedPath() {
+		for (int i = 0; i < movedPath.size(); i++) {
+			for (int j = i + 2; j < movedPath.size(); j++) {
+				AntNode node_i = movedPath.get(i);
+				AntNode node_j = movedPath.get(j);
+				if (ACO.roadMap.get(node_i).contains(node_j)) {
+					int index_i = i;
+					int index_j = j;
+					for (int k = index_i + 1; k < index_j; k++) {
+						AntNode temp = movedPath.get(index_i + 1);
+						movedPath.remove(temp);
+					}
+				}
+			}
+		}
+	}
+
 	public static void main(String[] args) {
-		Ant a = new Ant();
-		System.out.println(a.countThreshold(6));
 	}
 }

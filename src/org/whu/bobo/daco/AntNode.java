@@ -8,6 +8,10 @@ public class AntNode {
 	private double yPos; // 道路纵坐标
 	private double roadWeight;// 道路权值
 	private double pheromone; // 道路信息素
+	//默认构造函数
+	public AntNode() {
+
+	}
 
 	public AntNode(String roadName, double roadWeight, double xPos,
 			double yPos, double pheromone) {

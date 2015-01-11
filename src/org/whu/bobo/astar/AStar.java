@@ -55,9 +55,14 @@ public class AStar {
 			i++;
 		}
 	}
+
 	public void search(String startRoad, String endRoad) {
 		ANode sNode = ANodeUtil.getANode(roadMap, startRoad);
 		ANode eNode = ANodeUtil.getANode(roadMap, endRoad);
+		if (sNode == null || eNode == null) {
+			System.out.println("Please check whether roads exists?");
+			return;
+		}
 		openList.add(sNode);
 		search(sNode, eNode);
 	}
