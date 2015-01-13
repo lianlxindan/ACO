@@ -96,7 +96,7 @@ public class Ant {
 				curRoad.setCount(curRoad.getCount() + 1); // 蚂蚁走过的路径 标识+1;
 				movedPath.add(curRoad);
 				if (curRoad.getRoadName().equals(endRoad.getRoadName())) {
-					checkmovedPath();
+					checkmovedPath(); // 后处理路径
 					break;
 				}
 			} else {

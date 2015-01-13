@@ -26,7 +26,7 @@ public class ACO {
 	public static double ROU = 0.5; // 信息素残留参数
 	public static double P = 0.2; // 伪概率事件
 	public static int N_ANT_COUNT = 5;// 蚂蚁数量
-	public static int N_IT_COUNT = 100;// 迭代次数
+	public static int N_IT_COUNT = 10;// 迭代次数
 	public static double DBQ = 100.0;// 总的信息量
 	// 构建路网
 	public void setRoadMap(double pre_trial) {
