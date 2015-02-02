@@ -22,12 +22,14 @@ import org.whu.bobo.data.Mobility;
 public class ACO {
 	public static HashMap<AntNode, List<AntNode>> roadMap = new HashMap<AntNode, List<AntNode>>();// 路网邻接表
 	public static double ALPHA = 1.5;// 启发因子，信息素的重要程度
-	public static double BETA = 2.5; // 期望因子，城市间距离的重要程度 需要调整
+	public static double BETA = 2.0; // 期望因子，城市间距离的重要程度 需要调整
+	public static double RFORE = 5; // 方向因子
 	public static double ROU = 0.5; // 信息素残留参数
 	public static double P = 0.2; // 伪概率事件
 	public static int N_ANT_COUNT = 5;// 蚂蚁数量
 	public static int N_IT_COUNT = 10;// 迭代次数
-	public static double DBQ = 100.0;// 总的信息量
+	public static double DBQ = 1000.0;// 总的信息量
+
 	// 构建路网
 	public void setRoadMap(double pre_trial) {
 		Mobility m = new Mobility();
@@ -35,8 +37,10 @@ public class ACO {
 		for (int i = 1; i < roadInfo.length; i += 2) {
 			String roadName = roadInfo[i];
 			String roadWeight = roadInfo[i + 1];
-			double xPos = m.getCoordData(roadName).get(0);
-			double yPos = m.getCoordData(roadName).get(1);
+			// double xPos = m.getCoordData(roadName).get(0);
+			// double yPos = m.getCoordData(roadName).get(1);
+			double xPos = m.getLastCoordData(roadName).get(0);
+			double yPos = m.getLastCoordData(roadName).get(1);
 			AntNode road = new AntNode(roadName,
 					Double.parseDouble(roadWeight), xPos, yPos, pre_trial);
 			roadMap.put(road, null);

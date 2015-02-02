@@ -54,7 +54,8 @@ public class Dijkstra {
 			i++;
 		}
 	}
-	//初始化
+
+	// 初始化
 	private void init(Node sNode) {
 		closeList.add(sNode); // sNode 加入到closeList 其他加入到openList
 		sNode.setShortestWeight(0.0);
@@ -114,7 +115,8 @@ public class Dijkstra {
 		int n = roadMap.size();
 		for (int i = 0; i < n - 1; i++) {
 			Node nearest = getShortestPath();
-			if (nearest == null) {
+			if (nearest == null
+					|| nearest.getRoadName().equals(eNode.getRoadName())) {
 				break;
 			}
 			closeList.add(nearest);

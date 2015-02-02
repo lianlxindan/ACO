@@ -33,8 +33,10 @@ public class AStar {
 		for (int i = 1; i < roadInfo.length; i += 2) {
 			String roadName = roadInfo[i];
 			String roadWeight = roadInfo[i + 1];
-			double xPos = m.getCoordData(roadName).get(0);
-			double yPos = m.getCoordData(roadName).get(1);
+//			double xPos = m.getCoordData(roadName).get(0);
+//			double yPos = m.getCoordData(roadName).get(1);
+			double xPos = m.getLastCoordData(roadName).get(0);
+			double yPos = m.getLastCoordData(roadName).get(1);
 			ANode road = new ANode(roadName, xPos, yPos,
 					Double.parseDouble(roadWeight), null);
 			roadMap.put(road, null);

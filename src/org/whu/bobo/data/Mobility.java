@@ -15,10 +15,13 @@ public class Mobility implements MobilityInterface {
 	public static List<String> shapeData;
 	public static HashMap<String, List<Double>> shapeCoord;
 
+	public static HashMap<String, List<Double>> lastShapeCoord; // 道路尾部坐标
+
 	public Mobility() {
 		dataSource = new ArrayList<String>();
 		shapeData = new ArrayList<String>();
 		shapeCoord = new HashMap<String, List<Double>>();
+		lastShapeCoord = new HashMap<String, List<Double>>();
 		initData();
 	}
 
@@ -41,12 +44,15 @@ public class Mobility implements MobilityInterface {
 					Double.parseDouble(everyLength[i + 1]));
 		}
 		setMapCoord();
+		setLastMapCoord();
 	}
 
+	// 得到道路平均坐标
 	public List<Double> getCoordData(String edge) {
 		return shapeCoord.get(edge);
 	}
 
+	// 计算道路平均坐标
 	private double getAvgCoord(List<Double> res, int flag) {
 		double total = 0.0;
 		if (flag == 0) {
@@ -64,6 +70,7 @@ public class Mobility implements MobilityInterface {
 		}
 	}
 
+	// 构造道路平均坐标Map
 	public void setMapCoord() {
 		List<Double> data = new ArrayList<Double>();
 		for (int i = 0; i < shapeData.size(); i++) {
@@ -80,6 +87,30 @@ public class Mobility implements MobilityInterface {
 			coord.add(yPos);
 			shapeCoord.put(edgeName, coord);
 		}
+	}
+
+	// 构造道路出口坐标Map
+	public void setLastMapCoord() {
+		List<Double> data = new ArrayList<Double>();
+		for (int i = 0; i < shapeData.size(); i++) {
+			data.clear();
+			String[] res = shapeData.get(i).split(",");
+			String edgeName = res[1];
+			for (int j = 2; j < res.length; j++) {
+				data.add(Double.parseDouble(res[j]));
+			}
+			List<Double> coord = new ArrayList<Double>();
+			double xPos = data.get(data.size() - 2);
+			double yPos = data.get(data.size() - 1);
+			coord.add(xPos);
+			coord.add(yPos);
+			lastShapeCoord.put(edgeName, coord);
+		}
+	}
+
+	// 得到道路出口坐标
+	public List<Double> getLastCoordData(String edge) {
+		return lastShapeCoord.get(edge);
 	}
 
 	// 获取道路所有的边
@@ -140,5 +171,6 @@ public class Mobility implements MobilityInterface {
 	public static void main(String[] args) {
 		Mobility m = new Mobility();
 		System.out.println(m.getCoordData("--5558").get(0));
+		System.out.println(m.getLastCoordData("--5558"));
 	}
 }

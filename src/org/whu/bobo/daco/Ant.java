@@ -3,6 +3,12 @@ package org.whu.bobo.daco;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 蚂蚁类
+ * 
+ * @author bobo
+ *
+ */
 public class Ant {
 	private AntNode startRoad;// 起点街道
 	private AntNode endRoad;// 终点街道
@@ -110,6 +116,9 @@ public class Ant {
 	public AntNode chooseNextRoad() {
 		AntNode selectedRoad = null;
 		List<AntNode> allowedRoad = setAllowedRoad();
+		if (allowedRoad.contains(endRoad)) {
+			return endRoad;
+		}
 		AntNode preRoad = null; // 走过的前一个街道
 		while (allowedRoad.size() == 0) {// 走到死胡同
 			if (movedPath.size() > 2) {
@@ -135,21 +144,30 @@ public class Ant {
 		double dbTotal = 0.0;
 		for (int i = 0; i < allowedRoad.size(); i++) {
 			AntNode nextRoad = allowedRoad.get(i);
+			//2015-2-2 18:56:13 bobo add
+			double distOne = countH(nextRoad, endRoad);
+			double distTwo = countH(curRoad, endRoad);
+			if (distOne > distTwo) {
+				double preTrial = nextRoad.getPheromone();
+				double curTrial = preTrial * (distTwo / distOne);
+				nextRoad.setPheromone(curTrial);
+			}
 			if (!movedPath.contains(nextRoad)) {
-				double p = 0.1;
 				double a = nextRoad.getPheromone();
-				double b = countH(nextRoad, this.endRoad) * (1 - p) // 用与终点的距离和自身的长度作为期望因子
-						+ p * nextRoad.getRoadWeight();
-				if (b == 0.0) { // 当前点已经是终点 直接返回
+				double b = nextRoad.getRoadWeight();
+				double c = countH(nextRoad, this.endRoad);// 用与终点的距离和自身的长度作为期望因子
+				if (c == 0.0) { // 当前点已经是终点 直接返回
 					selectedRoad = nextRoad;
 					return selectedRoad;
 				}
 				double x = Math.pow(a, ACO.ALPHA);
-				double y = Math.pow(1.0 / b, ACO.BETA);
-				prob[i] = x * y;
+				double y = Math.pow(10.0 / b, ACO.BETA);
+				double z = Math.pow(100.0 / c, ACO.RFORE);
+				prob[i] = x * y * z;
 				dbTotal += prob[i];
 				if (prob[i] > maxProb) {
 					maxProbRoad = allowedRoad.get(i);
+					maxProb = prob[i];
 				}
 			} else {
 				nextRoad.setPheromone(0.0);
@@ -171,6 +189,14 @@ public class Ant {
 			}
 		} else {
 			selectedRoad = maxProbRoad;
+		}
+		// 2015-2-2 17:04:48 bobo add
+		double distOne = countH(selectedRoad, endRoad);
+		double distTwo = countH(curRoad, endRoad);
+		if (distOne > distTwo) {
+			double preTrial = selectedRoad.getPheromone();
+			double curTrial = preTrial * (distTwo / distOne);
+			selectedRoad.setPheromone(curTrial);
 		}
 		return selectedRoad;
 	}
@@ -221,12 +247,6 @@ public class Ant {
 		return res;
 	}
 
-	// 计算自适应阈值
-	public double countThreshold(int iter) {
-		double num = Math.pow(iter, 2);
-		return 1 - Math.pow(Math.E, -num);
-	}
-
 	// 检查是否出现路径是否出现绕路
 	private void checkmovedPath() {
 		for (int i = 0; i < movedPath.size(); i++) {
@@ -239,12 +259,16 @@ public class Ant {
 					for (int k = index_i + 1; k < index_j; k++) {
 						AntNode temp = movedPath.get(index_i + 1);
 						movedPath.remove(temp);
+						temp.setCount(temp.getCount() - 1);
 					}
+					j = i + 1;
 				}
 			}
 		}
 	}
 
 	public static void main(String[] args) {
+		System.out.println((double) 1000.0 / 5579.110000000001);
+		System.out.println((double) 1000.0 / 4145.97);
 	}
 }
